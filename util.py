@@ -1,7 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 
-def show_bipartite_graph(graph, marked_edges=None, layers=None):
+def show_bipartite_graph(graph, marked_edges=None, layers=None, save=False, count=None):
     """
     Mostra o grafo bipartido usando NetworkX e Matplotlib, com vértices de U em azul e vértices de V em verde.
     Arestas marcadas são pintadas de vermelho. Se um vértice está no dicionário 'layers', exibe seu valor abaixo da bolinha do vértice.
@@ -30,10 +30,15 @@ def show_bipartite_graph(graph, marked_edges=None, layers=None):
     pos = nx.bipartite_layout(B, graph.U)
 
 
-    # Desenhar os vértices de U (azul) e de V (verde)
-    nx.draw(B, pos,
-            node_color=['#70d6ff' if node in graph.U else '#ff70a6' for node in B.nodes()],
-            node_size=3500)
+   # Colorir os vértices com base em 'marked_edges'
+    marked_nodes = {u for u, v in marked_edges}.union({v for u, v in marked_edges})
+    node_colors = ['#ff70a6' if node in marked_nodes else '#70d6ff' for node in B.nodes()]
+
+    # Desenhar os vértices
+    nx.draw(B, pos, 
+            node_color=node_colors,
+            node_size=2000)
+
 
     # Separar as arestas em normais e marcadas
     normal_edges = [edge for edge in B.edges() if edge not in marked_edges]
@@ -52,5 +57,11 @@ def show_bipartite_graph(graph, marked_edges=None, layers=None):
     nx.draw_networkx_labels(B, offset_pos, labels=layer_labels, font_size=16, font_color='white')
 
     # Exibir o grafo
-
-    plt.show()
+    if save:
+        image_filename = f'image_{count}.png'
+        plt.savefig(image_filename)
+        plt.close()
+        return image_filename
+    else:
+        plt.show()
+        return None
